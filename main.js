@@ -99,7 +99,24 @@ function connectTheDots(data){
         c.push([x, y]);
     }
     return c;
-}
+};
+
+cutcoords = connectTheDots(cutpaths);
+
+console.log(cutpaths);
+
+var polylineOptions = {
+    color: 'blue',
+    weight: 2,
+    opacity: 0.9
+    };
+
+polyline = new L.Polyline(cutpaths, polylineOptions).addTo(map);
+map.addLayer(polyline);
+
+map.fitBounds(polyline.getBounds());
+
+// var route = L.polyline(cutpaths).addTo(map);
 
 //bestPathArray.forEach((coords, i) => {
 //  paths.push([coords[1], coords[0]]);
