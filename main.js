@@ -25,7 +25,7 @@ L.geoJson(digitie, {
       opacity: 0.3,
       weight: 4,
     }
-  }).addTo(map);
+  })
 
 //Defines the markers for the dog parks.
 var DogIcon = L.icon({
@@ -39,8 +39,8 @@ var DogIcon = L.icon({
 });
 
 //creates static start and end points NOTE: MUST BE LOCATED ON THE ROAD NETWORK  
-const start = [60.44553515006385, 22.28680595755577];
-const end = [60.445262610622706, 22.286767065525055];
+var start = [60.44671789182761, 22.290473878383636];
+var end = [60.44688722940642, 22.289559245109558];
 
 //Adds the start and end nodes to the map !TODO: Fix the broken marker image. 
 L.marker(start, {icon:DogIcon}).addTo(map);
@@ -49,7 +49,7 @@ L.marker(end, {icon:DogIcon}).addTo(map);
 //Creates a constant for the GeoJson pathfinding variable
 const pathFinder = new geojsonPathFinder(digitie);
 
-//Searches the shorte route
+//Searches the shortest route
 const bestPath = pathFinder.findPath({
     geometry: {
         coordinates: [start[1], start[0]]
@@ -90,20 +90,16 @@ var cutpaths = bestPathArray.slice(0, -2); // cuts the unused parts of the array
 
 console.log(JSON.stringify(cutpaths)); //logs the new cut array as string
 
-//WIP function for drawing the routes
-function connectTheDots(data){
-    var c = [];
-    for(i in data._layers) {
-        var x = data._layers[i]._latlng.lat;
-        var y = data._layers[i]._latlng.lng;
-        c.push([x, y]);
-    }
-    return c;
-};
-
-cutcoords = connectTheDots(cutpaths);
-
 console.log(cutpaths);
+
+
+var wrongCoords = cutpaths[0];
+
+console.log(wrongCoords[1])
+
+var correctCoords = L.GeoJSON.coordsToLatLngs(wrongCoords)
+
+console.log(correctCoords)
 
 var polylineOptions = {
     color: 'blue',
@@ -111,7 +107,7 @@ var polylineOptions = {
     opacity: 0.9
     };
 
-polyline = new L.Polyline(cutpaths, polylineOptions).addTo(map);
+polyline = new L.Polyline(correctCoords, polylineOptions).addTo(map);
 map.addLayer(polyline);
 
 map.fitBounds(polyline.getBounds());
