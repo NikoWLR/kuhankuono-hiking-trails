@@ -67,7 +67,8 @@ body {
         border-radius: 15px;
         box-shadow: 0px 1px 5px gray;
         display: inline-block;
-        text-indent: 5%;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
     }
 
     #workingparkbutton {
@@ -79,12 +80,14 @@ body {
       border-radius: 15px;
       box-shadow: 0px 1px 5px gray;
       display: inline-block;
-      text-indent: 5%;
+      
       cursor: pointer;
+      overflow-wrap: break-word;
+      word-wrap: break-word;
   }
     
     #parkimage {
-        background-color: blue;
+        background-color: lightcoral;
         height: 100%;
         width: 25%;
         margin-top: 0%;
@@ -93,11 +96,27 @@ body {
         border-radius: 15px;
         border-top-left-radius:0px;
         border-bottom-left-radius:0px;
-        background-image: url("Icons/dogplaceholder.jpg");
+        background-image: url("img/KupittaanKoirapuisto.png");
         background-size: contain;
+        filter: grayscale(100%);
     }
+
+    #workingparkimage {
+      background-color: lightgreen;
+      height: 100%;
+      width: 25%;
+      margin-top: 0%;
+      float: right;
+      text-align: center;
+      border-radius: 15px;
+      border-top-left-radius:0px;
+      border-bottom-left-radius:0px;
+      background-image: url("img/KupittaanKoirapuisto.png");
+      background-size:100%;
+      background-repeat: no-repeat;
+      }
     
-    #parkbutton:hover {
+    #workingparkbutton:hover {
       box-shadow: 0px 1px 9px gray;
       transition: 0.1s
     }
@@ -107,6 +126,7 @@ body {
       font-family:'Quicksand', 'Arial Narrow', Arial, sans-serif ;
       font-weight: normal;
       font-style: normal;
+      padding-left: 5%;
     }
     
     h1 {
@@ -114,6 +134,7 @@ body {
     font-family:'Comfortaa', Arial, sans-serif;
     font-weight: normal;
     font-style: normal;
+
     
     }
     
@@ -123,6 +144,8 @@ body {
       font-weight: normal;
       font-style: normal;
       font-size: small;
+      padding-left: 5%;
+
       
       }
 
