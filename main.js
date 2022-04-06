@@ -21,8 +21,8 @@ map.getPane('labels').style.pointerEvents = 'none';
 //adds the GeoJson road network to map
 L.geoJson(digitie, {
     style: {
-      color: '#7d7d7d',
-      opacity: 0.3,
+      color: 'blue',
+      //opacity: 0.3,
       weight: 4,
     }
   })
@@ -42,7 +42,7 @@ var DogIcon = L.icon({
 var start = [60.44671789182761, 22.290473878383636];
 var end = [60.44688722940642, 22.289559245109558];
 
-//Adds the start and end nodes to the map !TODO: Fix the broken marker image. 
+//Adds the start and end nodes to the map 
 L.marker(start, {icon:DogIcon}).addTo(map);
 L.marker(end, {icon:DogIcon}).addTo(map);
 
@@ -102,8 +102,8 @@ var correctCoords = L.GeoJSON.coordsToLatLngs(wrongCoords)
 console.log(correctCoords)
 
 var polylineOptions = {
-    color: 'blue',
-    weight: 2,
+    color: 'orange',
+    weight: 5,
     opacity: 0.9
     };
 
@@ -112,12 +112,4 @@ map.addLayer(polyline);
 
 map.fitBounds(polyline.getBounds());
 
-// var route = L.polyline(cutpaths).addTo(map);
-
-//bestPathArray.forEach((coords, i) => {
-//  paths.push([coords[1], coords[0]]);
-//});
-
-//draws the route on the map (not working atm)
-//var pathPL = new L.polyline(paths, {color: 'red'});
-//map.addLayer(pathPL);
+// https://gis.stackexchange.com/questions/210041/using-leaflet-js-is-it-possible-to-know-the-onclick-location-of-a-marker-ignor
