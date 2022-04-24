@@ -23,7 +23,7 @@ L.geoJson(digitie, {
     style: {
       color: 'blue',
       //opacity: 0.3,
-      weight: 4,
+      weight: 3,
     }
   })
 
@@ -38,78 +38,177 @@ var DogIcon = L.icon({
     popupAnchor:  [0, -50] // point from which the popup should open relative to the iconAnchor
 });
 
+var BeachIcon = L.icon({
+    iconUrl: 'Icons/DogBeach.png',
+    shadowUrl: '',
+    iconSize:     [28, 55], // size of the icon
+    //shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [13, 55], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [0, -50] // point from which the popup should open relative to the iconAnchor
+});
+
+var TrashIcon = L.icon({
+    iconUrl: 'Icons/DogTrash.png',
+    shadowUrl: '',
+    iconSize:     [28, 55], // size of the icon
+    //shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [13, 55], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [0, -50] // point from which the popup should open relative to the iconAnchor
+});
+
+var randomcoords = [
+    [ [60.44300547281816,22.28869020938873], [60.443307139234584, 22.290948629379272] ], 
+    [ [60.58663338, 22.3682834], [ 60.46146647, 22.19949567] ],
+    [ [ 60.65926926, 22.43304107], [ 60.53992979, 22.32789765] ]
+];
+
+var randNum = Math.floor(Math.random() * randomcoords.length);
+console.log(randNum)
+
+console.log(randomcoords)
+
+console.log(randomcoords[0])
+
+var randArr = randomcoords[randNum]
+//var randArr = randomcoords.slice(randNum);
+//console.log(randArr)
+randArrStart = randArr[0]
+randArrEnd = randArr[1]
+
+console.log(randArrStart)
+console.log(randArrEnd)
+
+
+//console.log(randArrDecrypted[0])
+//console.log(randArrDecrypted[1])
+
+
+
+
+
+
+
 //creates static start and end points NOTE: MUST BE LOCATED ON THE ROAD NETWORK  
-var start = [60.44671789182761, 22.290473878383636];
-var end = [60.44688722940642, 22.289559245109558];
+start = randArrStart;
+end = randArrEnd;
+
+//start = [60.58663338, 22.3682834];
+//end = [ 60.46146647, 22.19949567];
+
 
 //Adds the start and end nodes to the map 
-L.marker(start, {icon:DogIcon}).addTo(map);
-L.marker(end, {icon:DogIcon}).addTo(map);
+startmarker = L.marker(start, {icon:DogIcon}).addTo(map);
+endmarker = L.marker(end, {icon:DogIcon, draggable:true}).addTo(map);
 
 //Creates a constant for the GeoJson pathfinding variable
-const pathFinder = new geojsonPathFinder(digitie);
+pathFinder = new geojsonPathFinder(digitie, {precicion:1});
 
 //Searches the shortest route
-const bestPath = pathFinder.findPath({
-    geometry: {
-        coordinates: [start[1], start[0]]
-    }
+
+
+bestPath = pathFinder.findPath({
+    geometry: {coordinates: [start[1], start[0]]}
 }, 
-{
-    geometry: {
-        coordinates: [end[1], end[0]]
+{geometry: {coordinates: [end[1], end[0]]
     }
 });
 
-console.log(Array.isArray(bestPath)) //checks if the bestPath constant is an array. Should be false
-
-console.log(bestPath)
-
-let bestPathArray = Object.values(bestPath); //transforms the bestPath constant to an array for the forEach method.
-
-console.log(bestPath); //logs the bestPath modifier to the console (for debugging)
-
-console.log(bestPathArray); // logs the array form of the bestPath const (also for debugging)
-
-console.log(Array.isArray(bestPathArray)) //double checks if the array is an array (even more debugging)
-
-
 //checks if there's a possible path between the the nodes. If not, logs an error on the console
+
 if (bestPath == null) {
-alert("Best path: " + bestPath);
-throw "No valid path found";
-}
+    console.log( "No valid path found");
+    }
+//console.log(Array.isArray(bestPath)) //checks if the bestPath constant is an array. Should be false
+
+//console.log(bestPath)
+
+bestPathArray = Object.values(bestPath); //transforms the bestPath constant to an array for the forEach method.
 
 var paths = [bestPathArray]; //creates an variable from the array (??? not sure why but it works ???)
 
-console.log(JSON.stringify(bestPathArray)); //transforms the array into a string for legibility
-
-console.log(paths); //logs the newly created string
-
 var cutpaths = bestPathArray.slice(0, -2); // cuts the unused parts of the array
 
-console.log(JSON.stringify(cutpaths)); //logs the new cut array as string
+//console.log(bestPathArray)
 
-console.log(cutpaths);
 
+var pathlengthArr = bestPathArray.slice(1, -1); // cuts the unused parts of the array
+
+//console.log(pathlengthArr)
+
+pathlength = pathlengthArr[0];
 
 var wrongCoords = cutpaths[0];
 
-console.log(wrongCoords[1])
 
-var correctCoords = L.GeoJSON.coordsToLatLngs(wrongCoords)
+var correctCoords = L.GeoJSON.coordsToLatLngs(wrongCoords);
 
-console.log(correctCoords)
-
-var polylineOptions = {
+polylineOptions = {
     color: 'orange',
     weight: 5,
     opacity: 0.9
     };
 
-polyline = new L.Polyline(correctCoords, polylineOptions).addTo(map);
-map.addLayer(polyline);
 
+polyline = new L.Polyline(correctCoords, polylineOptions).bindPopup('Route length: ' + Math.round(pathlength * 100) / 100 + " km").addTo(map);
+
+map.addLayer(polyline);
 map.fitBounds(polyline.getBounds());
+
+endmarker.on('dragend', function (e) {
+    startCoords = endmarker.getLatLng();
+    console.log(startCoords)
+
+    console.log("Calculating the route")
+    pathFinder = new geojsonPathFinder(digitie, {precicion:1});
+    bestPath = pathFinder.findPath({
+        geometry: {
+            coordinates: [startCoords[0], startCoords[1]]
+        }
+    }, 
+    {
+        geometry: {
+            coordinates: [end[0], end[1]]
+        }
+    });
+
+    if (bestPath == null) {
+        console.log( "No valid path found");
+    }
+
+     paths = [bestPathArray]; //creates an variable from the array (??? not sure why but it works ???)
+
+     cutpaths = bestPathArray.slice(0, -2); // cuts the unused parts of the array
+
+     wrongCoords = cutpaths[0];
+
+     //correctCoords = L.GeoJSON.coordsToLatLngs(wrongCoords)
+
+    var polyline = new L.Polyline(correctCoords, polylineOptions).addTo(map);
+
+    console.log(bestPath)
+
+    console.log("Redrawing the polyline")
+
+    map.removeLayer(polyline);
+
+    //map.addLayer(polyline);
+
+
+});
+
+function clickerTest() {
+    map.panTo(new L.LatLng(60.4472761, 22.2968824));
+  }
+
+  // Add dog parks to the map
+
+var SNiemiRanta = L.marker([60.425599 ,22.0972503], {icon:BeachIcon}).addTo(map); // Saarronniemen koiraranta
+var SNiemiPuisto = L.marker([60.425766,22.096746], {icon:BeachIcon}).addTo(map); // Saarronniemen koirapuisto 
+var UittamoRanta = L.marker([60.4203257,22.2508475], {icon:BeachIcon}).addTo(map); //  Uittamon koiraranta 
+
+var trashtest = L.marker([60.44300547281816,22.28869020938873], {icon:TrashIcon}).addTo(map); //  Uittamon koiraranta 
+
 
 // https://gis.stackexchange.com/questions/210041/using-leaflet-js-is-it-possible-to-know-the-onclick-location-of-a-marker-ignor
