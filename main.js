@@ -18,8 +18,18 @@ map.createPane('labels');
 map.getPane('labels').style.zIndex = 650;
 map.getPane('labels').style.pointerEvents = 'none';
 
+
+//onEachFeature function for the dog park data
+function onEachFeature(feature, layer) {
+    var popupContent = "- "+feature.properties.Id +"<br>"+ "- "+feature.properties.Koko;
+    if (feature.properties && feature.properties.popupContent) {
+      popupContent += feature.properties.popupContent;
+    }
+    layer.bindPopup(popupContent);
+  }
+
 //adds the GeoJson road network to map
-L.geoJson(digitie, {
+digitieLayer = L.geoJson(digitie, {
     style: {
       color: 'blue',
       //opacity: 0.3,
@@ -38,7 +48,7 @@ var DogIcon = L.icon({
     popupAnchor:  [0, -50] // point from which the popup should open relative to the iconAnchor
 });
 
-var BeachIcon = L.icon({
+var BeachIcon = L.icon({  // icon for dog beaches
     iconUrl: 'Icons/DogBeach.png',
     shadowUrl: '',
     iconSize:     [28, 55], // size of the icon
@@ -48,7 +58,7 @@ var BeachIcon = L.icon({
     popupAnchor:  [0, -50] // point from which the popup should open relative to the iconAnchor
 });
 
-var TrashIcon = L.icon({
+var TrashIcon = L.icon({ // icon for dog poop bags
     iconUrl: 'Icons/DogTrash.png',
     shadowUrl: '',
     iconSize:     [28, 55], // size of the icon
@@ -58,44 +68,43 @@ var TrashIcon = L.icon({
     popupAnchor:  [0, -50] // point from which the popup should open relative to the iconAnchor
 });
 
+//adds dog parks
+var doggoparks = new L.GeoJSON(geojsonObject, {
+    pointToLayer: function (feature, latlng) {
+        return L.marker(latlng, {icon:DogIcon});
+        return L.point(latlng); // The style
+      },  onEachFeature: onEachFeature
+      
+  }).addTo(map)
+
+  //array of functioning routes
 var randomcoords = [
     [ [60.44300547281816,22.28869020938873], [60.443307139234584, 22.290948629379272] ], 
     [ [60.58663338, 22.3682834], [ 60.46146647, 22.19949567] ],
-    [ [ 60.65926926, 22.43304107], [ 60.53992979, 22.32789765] ]
+    [ [ 60.65926926, 22.43304107], [ 60.53992979, 22.32789765] ],
+    [ [ 60.41315897, 22.29718845], [ 60.3861675, 22.20784445] ],
+    [ [60.44703804494439, 22.28835493326187], [ 60.447154463477325, 22.28892892599106] ]
 ];
 
-var randNum = Math.floor(Math.random() * randomcoords.length);
-console.log(randNum)
+var randNum = Math.floor(Math.random() * randomcoords.length); //selects one of the coordinates
+console.log(randNum) //for debug
+console.log(randomcoords[0]) // for debug
 
-console.log(randomcoords)
-
-console.log(randomcoords[0])
-
-var randArr = randomcoords[randNum]
+var randArr = randomcoords[randNum] //sets an array of the chosen coordinates
 //var randArr = randomcoords.slice(randNum);
 //console.log(randArr)
-randArrStart = randArr[0]
-randArrEnd = randArr[1]
+randArrStart = randArr[0] //lat. coords of the chosen array
+randArrEnd = randArr[1] //long. coords of the chosen array
 
 console.log(randArrStart)
 console.log(randArrEnd)
 
-
-//console.log(randArrDecrypted[0])
-//console.log(randArrDecrypted[1])
-
-
-
-
-
-
-
-//creates static start and end points NOTE: MUST BE LOCATED ON THE ROAD NETWORK  
+//creates start and end points for the pathfinding algorithm from the chosen random coords
 start = randArrStart;
 end = randArrEnd;
 
-//start = [60.58663338, 22.3682834];
-//end = [ 60.46146647, 22.19949567];
+//start = [60.44703804494439, 22.28835493326187];
+//end = [ 60.447154463477325, 22.28892892599106];
 
 
 //Adds the start and end nodes to the map 
@@ -107,7 +116,6 @@ pathFinder = new geojsonPathFinder(digitie, {precicion:1});
 
 //Searches the shortest route
 
-
 bestPath = pathFinder.findPath({
     geometry: {coordinates: [start[1], start[0]]}
 }, 
@@ -118,7 +126,7 @@ bestPath = pathFinder.findPath({
 //checks if there's a possible path between the the nodes. If not, logs an error on the console
 
 if (bestPath == null) {
-    console.log( "No valid path found");
+    console.log( "No valid path found :( ");
     }
 //console.log(Array.isArray(bestPath)) //checks if the bestPath constant is an array. Should be false
 
@@ -155,6 +163,31 @@ polyline = new L.Polyline(correctCoords, polylineOptions).bindPopup('Route lengt
 
 map.addLayer(polyline);
 map.fitBounds(polyline.getBounds());
+
+var stateChangingButton = L.easyButton('<img src="Icons/HeckinLines.png" style="width:16px", "height:16px">',{
+    states: [{
+            stateName: 'zoom-to-forest',        // name the state
+            icon:      'fa-tree',               // and define its properties
+            title:     'Show road network',      // like its title
+            onClick: function(btn, map) { 
+                map.addLayer(digitieLayer);      // and its callback
+                polyline.bringToFront()
+                btn.state('zoom-to-school');    // change state on click!
+            }
+        }, {
+            stateName: 'zoom-to-school',
+            icon:      'fa-university',
+            title:     'Remove road network',
+            onClick: function(btn, map) {
+                
+                btn.state('zoom-to-forest');
+                map.removeLayer(digitieLayer);
+            }
+    }]
+});
+
+stateChangingButton.addTo(map);
+
 
 endmarker.on('dragend', function (e) {
     startCoords = endmarker.getLatLng();
