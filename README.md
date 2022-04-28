@@ -1,2 +1,2 @@
 # GeoJSONRouting
-Testing a routing algorithm using GeoJson LineString data. To be later integrate to Out-With-The-Dog.
+Remaking a former project "Out with the Dog" into a hiking trail guide for Kuhankuono trails
